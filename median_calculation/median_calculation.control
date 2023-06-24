@@ -1,6 +1,7 @@
 # median_calculation.control
 
 comment = 'Extension for computing the median of a table'
-default_version = '1.0'
+default_version = '0.0.1'
+relocatable = true
 module_pathname = '$libdir/median_calculation'
 
