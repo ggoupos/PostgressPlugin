@@ -1,4 +1,4 @@
-.json
+*.json
 .cache
 .so
 .bc
