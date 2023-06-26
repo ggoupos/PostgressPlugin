@@ -13,6 +13,11 @@ make
 sudo make install
 ```
 
+## Run Tests
+
+After completing the above, run:
+1. `PGUSER=postgres make installcheck`
+
 ## Usage
 
 In order to use the median_calculation extension in Postgres, follow these steps:
@@ -37,6 +42,10 @@ INSERT INTO test_table (value) VALUES (10), (5), (7), (9), (12);
 ```
 SELECT median_calculation('test_table', 'value');
 
+```
+5. For dropping the extension, use
+```
+DROP EXTENSION median_calculation;
 ```
 
     
