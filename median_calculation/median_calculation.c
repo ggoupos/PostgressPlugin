@@ -1,8 +1,10 @@
 #include <postgres.h>
+#include <stdlib.h>
 #include <fmgr.h>
 #include <catalog/pg_type.h>
 #include <executor/spi.h>
 #include <utils/builtins.h>
+#include <utils/elog.h>
 
 PG_MODULE_MAGIC;
 
@@ -16,6 +18,10 @@ Datum median_calculation(PG_FUNCTION_ARGS) {
 
     char* table_name_str = text_to_cstring(table_name);
     char* column_name_str = text_to_cstring(column_name);
+
+  elog(NOTICE, "Table name: %s", table_name_str); // Print debug information
+  elog(NOTICE, "Column name: %s", column_name_str); // Print debug information
+
 
     char* query = psprintf("SELECT %s FROM %s", column_name_str, table_name_str);
 
@@ -42,40 +48,48 @@ Datum median_calculation(PG_FUNCTION_ARGS) {
     for (int i = 0; i < SPI_processed; i++) {
         HeapTuple tuple = SPI_tuptable->vals[i];
         values[i] = SPI_getbinval(tuple, tuple_desc, column_index, &nulls[i]);
+        elog(NOTICE, "Value %d = %ld ",i, DatumGetInt64(values[i])); // Print debug information
     }
 
+    
+    elog(NOTICE, "START SORTING"); // Print debug information
     qsort(values, SPI_processed, sizeof(Datum), cmp_numeric);
+    elog(NOTICE, "FINISH SORTING"); // Print debug information
+
 
     Datum median;
     if (SPI_processed % 2 == 0) {
         Datum value1 = values[(SPI_processed / 2) - 1];
         Datum value2 = values[SPI_processed / 2];
-        median = (value1+value2)/2; 
-  } else {
-        median = values[SPI_processed / 2];
+        float8 median_float = ((float8)DatumGetInt64(value1) + (float8)DatumGetInt64(value2)) / 2.0;
+        SPI_finish();
+        pfree(values);
+        pfree(nulls);
+        pfree(query);
+        pfree(table_name_str);
+        pfree(column_name_str);
+        PG_RETURN_FLOAT8(median_float);
     }
+    else {
+        median = values[SPI_processed / 2];
 
-    SPI_finish();
-    pfree(values);
-    pfree(nulls);
-    pfree(query);
-    pfree(table_name_str);
-    pfree(column_name_str);
-
-    PG_RETURN_DATUM(median);
+    }
+    PG_RETURN_FLOAT8(median);
 }
 
 static int cmp_numeric(const void* a, const void* b) {
-  Datum da = *((const Datum *)a);
-    Datum db = *((const Datum *)b);
+  Datum da = *(const Datum *)a;
+  Datum db = *(const Datum *)b;
 
-    int32 va = DatumGetInt32(da);
-    int32 vb = DatumGetInt32(db);
+  int64 va = DatumGetInt64(da);
+  int64 vb = DatumGetInt64(db);
 
-    if (va < vb)
+   if (va < vb) {
         return -1;
-    else if (va > vb)
+    } else if (va > vb) {
         return 1;
-    else
+    } else {
         return 0;
+    }
+
 }
