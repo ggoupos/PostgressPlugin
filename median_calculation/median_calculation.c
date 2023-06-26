@@ -74,8 +74,15 @@ Datum median_calculation(PG_FUNCTION_ARGS) {
         median = values[SPI_processed / 2];
 
     }
+    SPI_finish();
+    pfree(values);
+    pfree(nulls);
+    pfree(query);
+    pfree(table_name_str);
+    pfree(column_name_str);
+
     PG_RETURN_FLOAT8(median);
-}
+  }
 
 static int cmp_numeric(const void* a, const void* b) {
   Datum da = *(const Datum *)a;
