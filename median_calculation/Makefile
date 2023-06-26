@@ -4,6 +4,7 @@ MODULES = median_calculation
 EXTENSION = median_calculation
 OBJS = median_calculation.o
 DATA = median_calculation--0.0.1.sql
+REGRESS = median_calculation_test
 
 PG_CONFIG = pg_config
 PGXS := $(shell $(PG_CONFIG) --pgxs)

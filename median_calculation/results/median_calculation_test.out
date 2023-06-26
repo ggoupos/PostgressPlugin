@@ -1,0 +1,92 @@
+CREATE EXTENSION median_calculation;
+CREATE TABLE test_table (id SERIAL, value integer);
+INSERT INTO test_table (value) VALUES (10), (5), (7), (9), (12);
+SELECT median_calculation('test_table', 'value');
+NOTICE:  Table name: test_table
+NOTICE:  Column name: value
+NOTICE:  Value 0 = 10 
+NOTICE:  Value 1 = 5 
+NOTICE:  Value 2 = 7 
+NOTICE:  Value 3 = 9 
+NOTICE:  Value 4 = 12 
+NOTICE:  START SORTING
+NOTICE:  FINISH SORTING
+ median_calculation 
+--------------------
+                  9
+(1 row)
+
+INSERT INTO test_table (value) VALUES (1);
+SELECT median_calculation('test_table', 'value');
+NOTICE:  Table name: test_table
+NOTICE:  Column name: value
+NOTICE:  Value 0 = 10 
+NOTICE:  Value 1 = 5 
+NOTICE:  Value 2 = 7 
+NOTICE:  Value 3 = 9 
+NOTICE:  Value 4 = 12 
+NOTICE:  Value 5 = 1 
+NOTICE:  START SORTING
+NOTICE:  FINISH SORTING
+ median_calculation 
+--------------------
+                  8
+(1 row)
+
+INSERT INTO test_table (value) VALUES (100);
+SELECT median_calculation('test_table', 'value');
+NOTICE:  Table name: test_table
+NOTICE:  Column name: value
+NOTICE:  Value 0 = 10 
+NOTICE:  Value 1 = 5 
+NOTICE:  Value 2 = 7 
+NOTICE:  Value 3 = 9 
+NOTICE:  Value 4 = 12 
+NOTICE:  Value 5 = 1 
+NOTICE:  Value 6 = 100 
+NOTICE:  START SORTING
+NOTICE:  FINISH SORTING
+ median_calculation 
+--------------------
+                  9
+(1 row)
+
+INSERT INTO test_table (value) VALUES (74);
+SELECT median_calculation('test_table', 'value');
+NOTICE:  Table name: test_table
+NOTICE:  Column name: value
+NOTICE:  Value 0 = 10 
+NOTICE:  Value 1 = 5 
+NOTICE:  Value 2 = 7 
+NOTICE:  Value 3 = 9 
+NOTICE:  Value 4 = 12 
+NOTICE:  Value 5 = 1 
+NOTICE:  Value 6 = 100 
+NOTICE:  Value 7 = 74 
+NOTICE:  START SORTING
+NOTICE:  FINISH SORTING
+ median_calculation 
+--------------------
+                9.5
+(1 row)
+
+INSERT INTO test_table (value) VALUES (6);
+SELECT median_calculation('test_table', 'value');
+NOTICE:  Table name: test_table
+NOTICE:  Column name: value
+NOTICE:  Value 0 = 10 
+NOTICE:  Value 1 = 5 
+NOTICE:  Value 2 = 7 
+NOTICE:  Value 3 = 9 
+NOTICE:  Value 4 = 12 
+NOTICE:  Value 5 = 1 
+NOTICE:  Value 6 = 100 
+NOTICE:  Value 7 = 74 
+NOTICE:  Value 8 = 6 
+NOTICE:  START SORTING
+NOTICE:  FINISH SORTING
+ median_calculation 
+--------------------
+                  9
+(1 row)
+
