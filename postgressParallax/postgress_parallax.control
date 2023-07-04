@@ -1,0 +1,6 @@
+# median_calculation.control
+
+comment = 'Extension for using parallax in postgress'
+default_version = '0.0.1'
+relocatable = true
+module_pathname = '$libdir/postgress_parallax'
