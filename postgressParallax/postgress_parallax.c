@@ -27,15 +27,18 @@ Datum postgress_parallax(PG_FUNCTION_ARGS) {
   elog(NOTICE, "Key column name: %s", key_column_str); // Print debug information
   elog(NOTICE, "Value column name: %s", value_column_str); // Print debug information
   
-  // const char* error_msg = NULL;
+  const char* error_msg = NULL;
+
    struct par_db_options opt = { .volume_name = "test.dat",
                       .db_name = "test_postgress",
                       .create_flag = PAR_CREATE_DB,
                       .options = par_get_default_options()};
 
-  //par_handle handle = par_format("test.dat",128);
+  par_format("test.dat",128);
 
-  PG_RETURN_NULL();
+  par_handle handle = par_open(&opt,&error_msg);
+
+ // PG_RETURN_NULL();
 
   char* query = psprintf("SELECT %s, %s FROM %s", key_column_str, value_column_str, table_name_str);
 
@@ -68,20 +71,30 @@ Datum postgress_parallax(PG_FUNCTION_ARGS) {
     Datum* values = palloc(SPI_processed * sizeof(Datum));
     bool* nulls = palloc(SPI_processed * sizeof(bool));
 
+    struct par_key_value kv;
 
     for (int i = 0; i < SPI_processed; i++) {
         HeapTuple tuple = SPI_tuptable->vals[i];
 
         keys[i] = SPI_getbinval(tuple, tuple_desc, key_index, &nulls[i]);
         char* key_str = text_to_cstring(DatumGetTextP(keys[i]));
+        kv.k.data = strdup(key_str);
+        kv.k.size = strlen(key_str) + 1;
 
         values[i] = SPI_getbinval(tuple, tuple_desc, value_index, &nulls[i]);
         char* value_str = text_to_cstring(DatumGetTextP(values[i]));
+        kv.v.val_size = strlen(value_str) + 1;
+        kv.v.val_buffer = strdup(value_str);
+        kv.v.val_buffer_size = 0;
+
+        par_put(handle, &kv, &error_msg) ;
 
         elog(NOTICE, "Key %d = %s  Value %d = %s", i, key_str, i, value_str); // Print debug information
         
 
     }
+
+    par_close(handle);
 
     SPI_finish();
     pfree(values);
@@ -90,6 +103,7 @@ Datum postgress_parallax(PG_FUNCTION_ARGS) {
     pfree(table_name_str);
     pfree(key_column_str);
     pfree(value_column_str);
+    
 
     PG_RETURN_NULL();
   }
